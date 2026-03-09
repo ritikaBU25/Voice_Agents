@@ -1,0 +1,12 @@
+mistralai>=0.0.7
+langgraph>=0.0.1
+langchain-core>=0.1.0
+pydantic>=2.0
+numpy>=1.24.0
+scipy>=1.10.0
+openai-whisper>=20230314
+piper-tts>=1.0.0
+pyaudio>=0.2.13
+python-dotenv>=1.0.0
+soundfile>=0.12.0
+librosa>=0.10.0
