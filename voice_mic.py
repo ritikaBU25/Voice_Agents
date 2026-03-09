@@ -5,9 +5,6 @@ import os
 # Set API key
 os.environ['MISTRAL_API_KEY'] = 'xcduBttqCtCwjHyEJoo5iVyp1kEGsRRg'
 
-# Configuration flags
-DEBUG = os.getenv('DEBUG', 'False').lower() in ('1', 'true', 'yes')
-
 # Header printing moved into main guard to avoid side effects on import
 
 import sounddevice as sd
@@ -18,6 +15,9 @@ import speech_recognition as sr
 import time
 import re
 import string
+
+# Configuration flags
+DEBUG = os.getenv('DEBUG', 'False').lower() in ('1', 'true', 'yes')
 
 # debug helper: list available audio devices when DEBUG is enabled
 if DEBUG:
