@@ -75,8 +75,7 @@ def record_audio():
         # shorter duration for debugging
         DURATION = 10
     
-    print(f"🎤 Recording (max {DURATION} seconds) - speak anytime, silence will be monitored\n")
-    print("   (press Ctrl-C to cancel)")
+    print("🎤 Recording,\n")
     
     chunk_duration = 0.5
     chunk_samples = int(chunk_duration * SAMPLE_RATE)
