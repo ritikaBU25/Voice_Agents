@@ -86,7 +86,9 @@ def record_audio():
     silence_threshold = 0.005  # adjusted to catch quieter background noise periods
     silence_limit = int(5 / chunk_duration)  # 5 seconds of silence
     silence_count = 0
-    prompted = False
+    has_spoken = False  # Track if user has spoken
+    prompted = False  # Track if we've shown the prompt
+    prompt_count = 0  # Track prompts shown
     audio_chunks = []
     
     try:
@@ -112,21 +114,20 @@ def record_audio():
                     
                     # debug output for each chunk
                     if DEBUG:
-                        print(f"[debug] chunk={i} rms={rms:.6f} silence_count={silence_count} prompted={prompted}")
+                        print(f"[debug] chunk={i} rms={rms:.6f} silence_count={silence_count} has_spoken={has_spoken} prompt_count={prompt_count}")
                     # RMS display removed for cleaner output
                     
-                    # always track silence (regardless of prior speech)
+                    # Track if user has spoken
                     if rms > silence_threshold:
                         silence_count = 0
-                        if prompted:
-                            # user responded after prompt
-                            prompted = False
+                        has_spoken = True
                     else:
                         silence_count += 1
                     
-                    # trigger prompt or end on consecutive silence intervals
+                    # Handle silence intervals
                     if silence_count >= silence_limit:
                         if not prompted:
+                            # Show prompt for any 5 seconds of silence
                             print("\n🤔 Are you still there?\n")
                             try:
                                 import pyttsx3
@@ -136,9 +137,10 @@ def record_audio():
                             except:
                                 pass
                             prompted = True
+                            prompt_count += 1
                             silence_count = 0
                         else:
-                            # no response after prompt -> finish recording
+                            # User didn't respond after prompt - end recording
                             break
     except Exception as e:
         print(f"❌ Recording error: {e}\n")
@@ -146,19 +148,7 @@ def record_audio():
     print("✅ Recording complete\n")
     return np.concatenate(audio_chunks) if audio_chunks else np.array([])
 
-def is_conversation_end(text):
-    """Determine if user text indicates ending the conversation."""
-    if not text:
-        return False
-    lowered = text.lower()
-    endings = [
-        "that's all", "that is all", "thanks", "thank you",
-        "bye", "goodbye", "see you", "see ya", "i'm done", "im done"
-    ]
-    for phrase in endings:
-        if phrase in lowered:
-            return True
-    return False
+
 
 
 def process_audio(audio):
@@ -179,11 +169,6 @@ def process_audio(audio):
             audio_data = recognizer.record(source)
         text = recognizer.recognize_google(audio_data)
         print(f"📝 You said: {text}\n")
-        
-        # Check for user ending the conversation
-        if is_conversation_end(text):
-            print("\n👋 It sounds like you're finished. Ending session now.\n")
-            exit(0)
         
         # Get AI response
         print("🤖 Getting AI response...\n")
@@ -246,10 +231,6 @@ if __name__ == "__main__":
         elif choice == "2":
             text = input("\n📝 Type your question: ").strip()
             if text:
-                # Check for explicit end phrases
-                if is_conversation_end(text):
-                    print("\n👋 It sounds like you're finished. Ending session now.\n")
-                    break
                 print("\n🤖 Getting AI response...\n")
                 try:
                     response = client.chat.complete(
